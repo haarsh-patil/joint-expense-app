@@ -1,116 +1,358 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Joint Expense Calculator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joint Finance Planner</title>
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f2f4f8;
+    margin: 0;
+    padding: 20px;
+}
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
+.section {
+    background: #ffffff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 6px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.result {
+    font-weight: 600;
+    margin: 6px 0;
+}
+
+.sub-result {
+    font-weight: 500;
+    margin: 6px 0 12px 0;
+}
+
+.highlight {
+    background: #e8f3ff;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-top: 12px;
+}
+
+.positive {
+    color: green;
+}
+
+.negative {
+    color: red;
+}
+/* iPhone App Feel */
+.header-bar {
+    position: sticky;
+    top: 0;
+    background: white;
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+    z-index: 100;
+}
+
+.month-tabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 10px 0;
+}
+
+.month-tabs button {
+    flex: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: none;
+    background: #e5e7eb;
+    font-size: 13px;
+}
+
+.month-tabs button.active {
+    background: #007aff;
+    color: white;
+}
+
+.bottom-bar {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.bottom-bar button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+}
+
+.primary-btn {
+    background: #007aff;
+    color: white;
+}
+
+.secondary-btn {
+    background: #f3f4f6;
+}
+</style>
 </head>
 
-<body class="bg-gray-100 p-4">
+<body>
 
-<div class="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-6 space-y-6">
+<h1>Joint Finance Planner</h1>
 
-<h1 class="text-2xl font-bold text-center">Joint Expense Tracker</h1>
+<div class="header-bar">Monthly Planner</div>
 
-<!-- Month Selector -->
-<select id="monthSelector" class="w-full border p-2 rounded-xl">
-  <option>Jan 2026</option>
-  <option>Feb 2026</option>
-  <option>Mar 2026</option>
-</select>
+<div class="month-tabs" id="monthTabs"></div>
 
-<!-- Contribution -->
-<div class="space-y-2">
-  <label>Your Contribution</label>
-  <input id="yourContribution" type="number" class="w-full border p-2 rounded-xl" />
+<!-- INCOME -->
+<div class="section">
+<h2>Income</h2>
 
-  <label>Wife Contribution</label>
-  <input id="wifeContribution" type="number" class="w-full border p-2 rounded-xl" />
+<label>Salary - Partner 1</label>
+<input type="number" id="salary1" oninput="calculate()">
 
-  <label>Emergency Fund Deduction</label>
-  <input id="emergencyFund" type="number" class="w-full border p-2 rounded-xl" />
+<label>Salary - Partner 2</label>
+<input type="number" id="salary2" oninput="calculate()">
+
+<div class="result">Total Income: ₹ <span id="totalIncome">0</span></div>
 </div>
 
-<!-- Expense Section -->
-<div>
-  <h2 class="font-semibold">Monthly Expense Projection</h2>
+<!-- DEDUCTIONS PARTNER 1 -->
+<div class="section">
+<h2>Mandatory Deductions - Partner 1</h2>
 
-  <label>Rent</label>
-  <input id="rent" type="number" value="25000" class="w-full border p-2 rounded-xl" />
+<label>EMI / Credit Card</label>
+<input type="number" class="ded1" oninput="calculate()">
 
-  <label>Groceries</label>
-  <input id="groceries" type="number" value="8000" class="w-full border p-2 rounded-xl" />
+<label>LIC Installment</label>
+<input type="number" class="ded1" oninput="calculate()">
 
-  <label>Utilities</label>
-  <input id="utilities" type="number" value="3000" class="w-full border p-2 rounded-xl" />
+<label>MF SIP / Stocks</label>
+<input type="number" class="ded1" oninput="calculate()">
+
+<label>Sukanya Samriddhi</label>
+<input type="number" class="ded1" oninput="calculate()">
+
+<label>PPF SIP</label>
+<input type="number" class="ded1" oninput="calculate()">
+
+<label>Other Deductions</label>
+<input type="number" class="ded1" oninput="calculate()">
+
+<div class="result">Total P1 Deductions: ₹ <span id="totalDed1">0</span></div>
 </div>
 
-<!-- Summary -->
-<div class="bg-gray-50 p-4 rounded-xl space-y-2">
-  <p>Total Joint Contribution: <span id="totalJoint"></span></p>
-  <p>After Emergency Fund: <span id="afterEmergency"></span></p>
-  <p>Total Expense Projection: <span id="totalExpense"></span></p>
-  <p>Balance Remaining: <span id="balance"></span></p>
+<!-- DEDUCTIONS PARTNER 2 -->
+<div class="section">
+<h2>Mandatory Deductions - Partner 2</h2>
+
+<label>EMI / Credit Card</label>
+<input type="number" class="ded2" oninput="calculate()">
+
+<label>LIC Installment</label>
+<input type="number" class="ded2" oninput="calculate()">
+
+<label>MF SIP / Stocks</label>
+<input type="number" class="ded2" oninput="calculate()">
+
+<label>Sukanya Samriddhi</label>
+<input type="number" class="ded2" oninput="calculate()">
+
+<label>PPF SIP</label>
+<input type="number" class="ded2" oninput="calculate()">
+
+<label>Other Deductions</label>
+<input type="number" class="ded2" oninput="calculate()">
+
+<div class="result">Total P2 Deductions: ₹ <span id="totalDed2">0</span></div>
 </div>
 
-<!-- Graph -->
-<canvas id="expenseChart"></canvas>
+<!-- JOINT CONTRIBUTION -->
+<div class="section">
+<h2>Joint Contribution</h2>
 
+<div class="result">Partner 1 Contribution: ₹ <span id="contri1">0</span></div>
+<div class="result">Partner 2 Contribution: ₹ <span id="contri2">0</span></div>
+<div class="result">Total Joint Contribution: ₹ <span id="totalContri">0</span></div>
+
+<label>Emergency Fund Deduction (Manual)</label>
+<input type="number" id="emergency" oninput="calculate()">
+
+<div class="highlight">
+Available After Emergency: ₹ <span id="available">0</span>
+</div>
+</div>
+
+<!-- MONTHLY EXPENSES -->
+<div class="section">
+<h2>Monthly Expense Projection</h2>
+
+<label>Cook</label>
+<input type="number" class="expense" value="7000" oninput="calculate()">
+
+<label>Maid</label>
+<input type="number" class="expense" value="1500" oninput="calculate()">
+
+<label>Nanny</label>
+<input type="number" class="expense" value="12000" oninput="calculate()">
+
+<label>Pet Care</label>
+<input type="number" class="expense" value="4500" oninput="calculate()">
+
+<label>Diapers</label>
+<input type="number" class="expense" value="1200" oninput="calculate()">
+
+<label>Milk Formula Powder</label>
+<input type="number" class="expense" value="450" oninput="calculate()">
+
+<label>Baby Other Products</label>
+<input type="number" class="expense" value="1700" oninput="calculate()">
+
+<label>Milk</label>
+<input type="number" class="expense" value="1800" oninput="calculate()">
+
+<label>Vegetables</label>
+<input type="number" class="expense" value="4000" oninput="calculate()">
+
+<label>Grocery</label>
+<input type="number" class="expense" value="10000" oninput="calculate()">
+
+<label>Light Bill</label>
+<input type="number" class="expense" value="2500" oninput="calculate()">
+
+<label>Gas</label>
+<input type="number" class="expense" value="900" oninput="calculate()">
+
+<label>Internet + Mobile</label>
+<input type="number" class="expense" value="2500" oninput="calculate()">
+
+<label>Fuel</label>
+<input type="number" class="expense" value="5000" oninput="calculate()">
+
+<label>Medical</label>
+<input type="number" class="expense" value="4500" oninput="calculate()">
+
+<label>Eating Out</label>
+<input type="number" class="expense" value="10000" oninput="calculate()">
+
+<label>Miscellaneous / Buffer</label>
+<input type="number" class="expense" value="10000" oninput="calculate()">
+
+<div class="result">
+Total Projected Expenses: ₹ <span id="totalExpense">0</span>
+</div>
+</div>
+
+<!-- END SUMMARY -->
+<div class="section">
+<h2>End of Month Summary</h2>
+
+<div class="sub-result">
+Total Joint Contribution (After Emergency): ₹ <span id="available2">0</span>
+</div>
+
+<label>Total Actual Spending (Enter at Month End)</label>
+<input type="number" id="actualSpending" oninput="calculate()">
+
+<div class="highlight">
+Balance Remaining in Joint Account: ₹ <span id="finalBalance">0</span>
+</div>
 </div>
 
 <script>
-function calculateAll() {
-  const your = +yourContribution.value || 0;
-  const wife = +wifeContribution.value || 0;
-  const emergency = +emergencyFund.value || 0;
-  const rentVal = +rent.value || 0;
-  const groceriesVal = +groceries.value || 0;
-  const utilitiesVal = +utilities.value || 0;
-
-  const totalJointVal = your + wife;
-  const afterEmergencyVal = totalJointVal - emergency;
-  const totalExpenseVal = rentVal + groceriesVal + utilitiesVal;
-  const balanceVal = afterEmergencyVal - totalExpenseVal;
-
-  totalJoint.innerText = totalJointVal;
-  afterEmergency.innerText = afterEmergencyVal;
-  totalExpense.innerText = totalExpenseVal;
-  balance.innerText = balanceVal;
-
-  updateChart(totalExpenseVal, balanceVal);
+function sumClass(cls) {
+    let total = 0;
+    document.querySelectorAll("." + cls).forEach(el => {
+        total += Number(el.value) || 0;
+    });
+    return total;
 }
 
-let chart;
-function updateChart(spent, remaining) {
-  const ctx = document.getElementById("expenseChart");
+function calculate() {
+    let s1 = Number(document.getElementById("salary1").value) || 0;
+    let s2 = Number(document.getElementById("salary2").value) || 0;
+    let totalIncome = s1 + s2;
 
-  if (chart) chart.destroy();
+    let d1 = sumClass("ded1");
+    let d2 = sumClass("ded2");
 
-  chart = new Chart(ctx, {
-    type: "doughnut",
-    data: {
-      labels: ["Spent", "Remaining"],
-      datasets: [{
-        data: [spent, remaining]
-      }]
-    }
-  });
+    let c1 = s1 - d1;
+    let c2 = s2 - d2;
+    let totalContri = c1 + c2;
+
+    let emergency = Number(document.getElementById("emergency").value) || 0;
+    let available = totalContri - emergency;
+
+    let totalExpense = sumClass("expense");
+
+    let actual = Number(document.getElementById("actualSpending").value) || 0;
+    let finalBalance = available - actual;
+
+    document.getElementById("totalIncome").innerText = totalIncome;
+    document.getElementById("totalDed1").innerText = d1;
+    document.getElementById("totalDed2").innerText = d2;
+    document.getElementById("contri1").innerText = c1;
+    document.getElementById("contri2").innerText = c2;
+    document.getElementById("totalContri").innerText = totalContri;
+    document.getElementById("available").innerText = available;
+    document.getElementById("available2").innerText = available;
+    document.getElementById("totalExpense").innerText = totalExpense;
+    document.getElementById("finalBalance").innerText = finalBalance;
+
+    document.getElementById("finalBalance").className =
+        finalBalance >= 0 ? "positive" : "negative";
 }
 
-document.querySelectorAll("input").forEach(i =>
-  i.addEventListener("input", calculateAll)
-);
-
-calculateAll();
+calculate();
+</script>
+<div class="bottom-bar">
+    <button class="secondary-btn" onclick="resetMonth()">Reset Month</button>
+    <button class="primary-btn" onclick="exportPDF()">Export PDF</button>
+</div>
+</body>
+</html>
 </script>
 <script type="module">
 
