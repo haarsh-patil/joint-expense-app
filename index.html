@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joint Expense Calculator</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+</head>
+
+<body class="bg-gray-100 p-4">
+
+<div class="max-w-xl mx-auto bg-white rounded-2xl shadow-xl p-6 space-y-6">
+
+<h1 class="text-2xl font-bold text-center">Joint Expense Tracker</h1>
+
+<!-- Month Selector -->
+<select id="monthSelector" class="w-full border p-2 rounded-xl">
+  <option>Jan 2026</option>
+  <option>Feb 2026</option>
+  <option>Mar 2026</option>
+</select>
+
+<!-- Contribution -->
+<div class="space-y-2">
+  <label>Your Contribution</label>
+  <input id="yourContribution" type="number" class="w-full border p-2 rounded-xl" />
+
+  <label>Wife Contribution</label>
+  <input id="wifeContribution" type="number" class="w-full border p-2 rounded-xl" />
+
+  <label>Emergency Fund Deduction</label>
+  <input id="emergencyFund" type="number" class="w-full border p-2 rounded-xl" />
+</div>
+
+<!-- Expense Section -->
+<div>
+  <h2 class="font-semibold">Monthly Expense Projection</h2>
+
+  <label>Rent</label>
+  <input id="rent" type="number" value="25000" class="w-full border p-2 rounded-xl" />
+
+  <label>Groceries</label>
+  <input id="groceries" type="number" value="8000" class="w-full border p-2 rounded-xl" />
+
+  <label>Utilities</label>
+  <input id="utilities" type="number" value="3000" class="w-full border p-2 rounded-xl" />
+</div>
+
+<!-- Summary -->
+<div class="bg-gray-50 p-4 rounded-xl space-y-2">
+  <p>Total Joint Contribution: <span id="totalJoint"></span></p>
+  <p>After Emergency Fund: <span id="afterEmergency"></span></p>
+  <p>Total Expense Projection: <span id="totalExpense"></span></p>
+  <p>Balance Remaining: <span id="balance"></span></p>
+</div>
+
+<!-- Graph -->
+<canvas id="expenseChart"></canvas>
+
+</div>
+
+<script>
+function calculateAll() {
+  const your = +yourContribution.value || 0;
+  const wife = +wifeContribution.value || 0;
+  const emergency = +emergencyFund.value || 0;
+  const rentVal = +rent.value || 0;
+  const groceriesVal = +groceries.value || 0;
+  const utilitiesVal = +utilities.value || 0;
+
+  const totalJointVal = your + wife;
+  const afterEmergencyVal = totalJointVal - emergency;
+  const totalExpenseVal = rentVal + groceriesVal + utilitiesVal;
+  const balanceVal = afterEmergencyVal - totalExpenseVal;
+
+  totalJoint.innerText = totalJointVal;
+  afterEmergency.innerText = afterEmergencyVal;
+  totalExpense.innerText = totalExpenseVal;
+  balance.innerText = balanceVal;
+
+  updateChart(totalExpenseVal, balanceVal);
+}
+
+let chart;
+function updateChart(spent, remaining) {
+  const ctx = document.getElementById("expenseChart");
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Spent", "Remaining"],
+      datasets: [{
+        data: [spent, remaining]
+      }]
+    }
+  });
+}
+
+document.querySelectorAll("input").forEach(i =>
+  i.addEventListener("input", calculateAll)
+);
+
+calculateAll();
+</script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAyzQLpIwI37kxkLd42NnQgVsZrm2U5ANE",
+  authDomain: "joint-expense-835de.firebaseapp.com",
+  projectId: "joint-expense-835de",
+  storageBucket: "joint-expense-835de.firebasestorage.app",
+  messagingSenderId: "977090554220",
+  appId: "1:977090554220:web:ecfbb2fd2d7e57fda0ab49",
+  measurementId: "G-EP2Z0WYJX1"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function saveToCloud(data) {
+  await setDoc(doc(db, "expenses", "currentMonth"), data);
+}
+
+async function loadFromCloud() {
+  const docRef = doc(db, "expenses", "currentMonth");
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    Object.keys(data).forEach(key => {
+      if (document.getElementById(key)) {
+        document.getElementById(key).value = data[key];
+      }
+    });
+    calculateAll();
+  }
+}
+
+window.onload = loadFromCloud;
+
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+</body>
+</html>
