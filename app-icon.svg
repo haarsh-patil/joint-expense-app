@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Joint Finance">
+  <defs>
+    <linearGradient id="jf-bg" x1="8%" y1="8%" x2="92%" y2="92%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="55%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="jf-shine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Maskable: full-bleed background; iconography kept in central ~72% safe zone -->
+  <rect width="512" height="512" rx="112" fill="url(#jf-bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#jf-shine)"/>
+  <!-- Interlocking rings = joint / shared finances; readable at small sizes -->
+  <g fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="214" cy="256" r="86"/>
+    <circle cx="298" cy="256" r="86"/>
+  </g>
+  <!-- Subtle baseline = stability -->
+  <path d="M 148 352 H 364" stroke="#ffffff" stroke-opacity="0.35" stroke-width="10" stroke-linecap="round"/>
+</svg>
