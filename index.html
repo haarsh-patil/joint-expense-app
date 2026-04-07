@@ -4,8 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Joint Finance">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="application-name" content="Joint Finance">
+<meta name="description" content="Household income, deductions, joint contribution, and month-end summary.">
 <title>Joint Finance Planner</title>
 <link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/app-icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/app-icon.svg">
 
 <style>
 :root {
@@ -27,6 +34,12 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: contain;
+}
+
+html.standalone-app {
+  /* PWA / home-screen: stable background under status bar */
+  background-color: #0f172a;
 }
 
 body {
@@ -37,6 +50,14 @@ body {
   padding: calc(12px + var(--safe-t)) 16px calc(100px + var(--safe-b));
   min-height: 100dvh;
   -webkit-tap-highlight-color: transparent;
+}
+
+button,
+.top-nav button,
+.month-tabs button,
+.bottom-bar button,
+.compare-btn {
+  touch-action: manipulation;
 }
 
 .app-shell {
@@ -674,6 +695,14 @@ input:focus {
   }
 }
 </style>
+<script>
+(function () {
+  var mq = window.matchMedia && window.matchMedia("(display-mode: standalone)");
+  if ((mq && mq.matches) || window.navigator.standalone) {
+    document.documentElement.classList.add("standalone-app");
+  }
+})();
+</script>
 </head>
 
 <body>

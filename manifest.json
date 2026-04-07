@@ -1,9 +1,25 @@
 {
-  "name": "Joint Expense Tracker",
-  "short_name": "Expense",
+  "name": "Joint Finance Planner",
+  "short_name": "Joint Finance",
+  "description": "Household income, deductions, joint contribution, and month-end summary.",
   "start_url": "index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
-  "icons": []
+  "orientation": "portrait-primary",
+  "background_color": "#f0f4f8",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "icons/app-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/app-icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
 }
