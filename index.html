@@ -1,361 +1,1636 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
 <title>Joint Finance Planner</title>
+<link rel="manifest" href="manifest.json">
 
 <style>
+:root {
+  --bg: #f0f4f8;
+  --surface: #ffffff;
+  --accent: #007aff;
+  --accent-soft: rgba(0, 122, 255, 0.12);
+  --text: #0f172a;
+  --muted: #64748b;
+  --radius: 14px;
+  --shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #f2f4f8;
-    margin: 0;
-    padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #e8eef5 0%, var(--bg) 32%);
+  color: var(--text);
+  margin: 0;
+  padding: calc(12px + var(--safe-t)) 16px calc(100px + var(--safe-b));
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-shell {
+  max-width: min(520px, 100%);
+  margin: 0 auto;
+}
+
+@media (min-width: 430px) {
+  body {
+    font-size: 17px;
+  }
+  .section {
+    padding: 22px;
+  }
+  h2 {
+    font-size: 19px;
+  }
 }
 
 h1 {
-    text-align: center;
-    margin-bottom: 30px;
+  text-align: center;
+  margin: 8px 0 4px;
+  font-size: clamp(1.35rem, 4vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 16px;
 }
 
 .section {
-    background: #ffffff;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  background: var(--surface);
+  padding: 18px;
+  margin-bottom: 14px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 h2 {
-    margin-bottom: 15px;
-    font-size: 18px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 650;
+  border-bottom: 1px solid #eef2f7;
+  padding-bottom: 8px;
 }
 
 label {
-    font-size: 14px;
-    font-weight: 500;
-    display: block;
-    margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
 }
 
 input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 16px;
+  background: #fafbfc;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .result {
-    font-weight: 600;
-    margin: 6px 0;
+  font-weight: 600;
+  margin: 6px 0;
+  font-size: 15px;
 }
 
 .sub-result {
-    font-weight: 500;
-    margin: 6px 0 12px 0;
+  font-weight: 500;
+  margin: 6px 0 12px;
+  color: #475569;
 }
 
 .highlight {
-    background: #e8f3ff;
-    padding: 14px;
-    border-radius: 10px;
-    font-weight: 600;
-    margin-top: 12px;
+  background: linear-gradient(135deg, #e8f3ff 0%, #f0f7ff 100%);
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-top: 12px;
+  border: 1px solid rgba(0, 122, 255, 0.15);
 }
 
-.positive {
-    color: green;
+.positive { color: #059669; }
+.negative { color: #dc2626; }
+
+/* Top navigation */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 8px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 2px 16px rgba(15, 23, 42, 0.06);
+  display: flex;
+  gap: 8px;
 }
 
-.negative {
-    color: red;
+.top-nav button {
+  flex: 1;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
-/* iPhone App Feel */
+
+.top-nav button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
 .header-bar {
-    position: sticky;
-    top: 0;
-    background: white;
-    padding: 12px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 16px;
-    border-bottom: 1px solid #eee;
-    z-index: 100;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
 }
 
 .month-tabs {
-    display: flex;
-    overflow-x: auto;
-    gap: 8px;
-    padding: 10px 0;
+  display: flex;
+  overflow-x: auto;
+  gap: 10px;
+  padding: 8px 4px 10px;
+  margin: 0 -4px 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 12px;
 }
+.month-tabs::-webkit-scrollbar { display: none; }
 
 .month-tabs button {
-    flex: none;
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: none;
-    background: #e5e7eb;
-    font-size: 13px;
+  flex: none;
+  padding: 12px 18px;
+  min-height: 44px;
+  border-radius: 999px;
+  border: none;
+  background: #e5e7eb;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  scroll-snap-align: center;
 }
 
 .month-tabs button.active {
-    background: #007aff;
-    color: white;
+  background: var(--accent);
+  color: white;
+}
+
+/* Joint contribution — flash when ready */
+.joint-contrib-section {
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.35s ease;
+}
+
+.joint-contrib-section.flash-active {
+  animation: contribPulse 1.1s ease-out 1;
+}
+
+@keyframes contribPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.45);
+  }
+  40% {
+    box-shadow: 0 0 0 10px rgba(0, 122, 255, 0.12);
+  }
+  100% {
+    box-shadow: var(--shadow);
+  }
+}
+
+.split-visual {
+  margin-top: 14px;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.split-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #334155;
+}
+
+.split-bar {
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  background: #e2e8f0;
+}
+
+.split-seg-p1 {
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  min-width: 2px;
+  transition: width 0.35s ease;
+}
+
+.split-seg-p2 {
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  min-width: 2px;
+  transition: width 0.35s ease;
+}
+
+.pct-note {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* History */
+#view-history {
+  display: none;
+}
+
+#view-history.visible {
+  display: block;
+}
+
+.history-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow);
+}
+
+.history-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.history-meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+.history-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 20px;
+  font-size: 15px;
+}
+
+.history-compare-panel {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow);
+}
+
+.history-compare-heading {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.history-compare-hint {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 400px) {
+  .compare-row {
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+  }
+}
+
+.compare-row label {
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: #475569;
+}
+
+.compare-row select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+  background: #fafbfc;
+  min-height: 48px;
+}
+
+.compare-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  background: #1e3a5f;
+  color: #fff;
+  cursor: pointer;
+  min-height: 48px;
+  margin-bottom: 12px;
+}
+
+.compare-output {
+  display: none;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.compare-output.visible {
+  display: block;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 10px 8px;
+  text-align: right;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.compare-table th:first-child,
+.compare-table td:first-child {
+  text-align: left;
+  color: #475569;
+}
+
+.compare-table thead th {
+  font-weight: 700;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.compare-table .metric {
+  font-weight: 500;
+}
+
+.toast-container {
+  position: fixed;
+  left: 50%;
+  bottom: calc(88px + var(--safe-b));
+  transform: translateX(-50%);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  max-width: min(420px, calc(100vw - 32px));
+}
+
+.toast {
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast.toast--show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.toast--error {
+  background: rgba(127, 29, 29, 0.95);
 }
 
 .bottom-bar {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    padding: 10px;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 150;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 10px 12px calc(10px + var(--safe-b));
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: stretch;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.bottom-bar .bottom-bar__row {
+  display: flex;
+  flex: 1 1 100%;
+  gap: 8px;
+  justify-content: stretch;
+}
+
+.bottom-bar .bottom-bar__row--actions {
+  flex-wrap: wrap;
 }
 
 .bottom-bar button {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-    font-weight: 600;
+  flex: 1;
+  padding: 14px 10px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  min-height: 48px;
 }
 
 .primary-btn {
-    background: #007aff;
-    color: white;
+  background: var(--accent);
+  color: white;
 }
 
 .secondary-btn {
-    background: #f3f4f6;
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.save-btn {
+  background: linear-gradient(180deg, #059669, #047857);
+  color: white;
+}
+
+/* PDF template: laid out full-width off-screen so inner height is real; capturing class moves it on-screen for html2canvas */
+.pdf-export-root {
+  position: fixed;
+  left: -12000px;
+  top: 0;
+  width: 794px;
+  max-width: 100vw;
+  background: #fff;
+  color: #0f172a;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.45;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.pdf-export-root.pdf-export--capturing {
+  left: 0 !important;
+  z-index: 2147483646 !important;
+  opacity: 1 !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pdf-export-root .pdf-doc {
+  padding: 36px 40px 48px;
+}
+
+.pdf-export-root .pdf-brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 4px;
+  color: #0f172a;
+}
+
+.pdf-export-root .pdf-sub {
+  margin: 0 0 20px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.pdf-export-root .pdf-meta {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 11px;
+  color: #475569;
+}
+
+.pdf-export-root .pdf-section {
+  margin-bottom: 20px;
+  page-break-inside: avoid;
+}
+
+.pdf-export-root .pdf-section h2 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #1e40af;
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pdf-export-root table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pdf-export-root td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.pdf-export-root td:first-child {
+  color: #475569;
+}
+
+.pdf-export-root td.num,
+.pdf-export-root .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.pdf-export-root .pdf-highlight {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 8px;
+}
+
+.pdf-export-root .pdf-highlight td {
+  border: none;
+  padding: 4px 0;
+}
+
+.pdf-export-root .pdf-total-row td {
+  font-weight: 700;
+  border-top: 2px solid #cbd5e1;
+  border-bottom: none;
+  padding-top: 10px;
+}
+
+.pdf-export-root .pdf-split-note {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 8px;
+  text-align: center;
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .app-shell,
+  .bottom-bar,
+  .toast-container {
+    display: none !important;
+  }
+  #pdf-export-root {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    max-width: none !important;
+    z-index: auto !important;
+    pointer-events: auto !important;
+    display: block !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  #pdf-export-root .pdf-doc {
+    padding: 10mm 12mm;
+  }
 }
 </style>
 </head>
 
 <body>
+<div class="app-shell">
+  <h1>Joint Finance Planner</h1>
+  <p class="subtitle">Household income, splits &amp; joint account</p>
 
-<h1>Joint Finance Planner</h1>
+  <nav class="top-nav" role="tablist" aria-label="Main">
+    <button type="button" class="active" id="tab-planner" data-view="planner" role="tab" aria-selected="true">Planner</button>
+    <button type="button" id="tab-history" data-view="history" role="tab" aria-selected="false">History</button>
+  </nav>
 
-<div class="header-bar">Monthly Planner</div>
+  <div id="view-planner">
+    <div class="header-bar">Monthly Planner</div>
+    <div class="month-tabs" id="monthTabs" aria-label="Select month"></div>
 
-<div class="month-tabs" id="monthTabs"></div>
+    <!-- INCOME -->
+    <div class="section">
+      <h2>Income</h2>
+      <label>Salary - Partner 1</label>
+      <input type="number" inputmode="decimal" id="salary1" oninput="calculate()">
 
-<!-- INCOME -->
-<div class="section">
-<h2>Income</h2>
+      <label>Salary - Partner 2</label>
+      <input type="number" inputmode="decimal" id="salary2" oninput="calculate()">
 
-<label>Salary - Partner 1</label>
-<input type="number" id="salary1" oninput="calculate()">
+      <div class="result">Total Income: ₹ <span id="totalIncome">0</span></div>
+    </div>
 
-<label>Salary - Partner 2</label>
-<input type="number" id="salary2" oninput="calculate()">
+    <!-- DEDUCTIONS PARTNER 1 -->
+    <div class="section">
+      <h2>Mandatory Deductions - Partner 1</h2>
+      <label>EMI / Credit Card</label>
+      <input type="number" inputmode="decimal" class="ded1" oninput="calculate()">
 
-<div class="result">Total Income: ₹ <span id="totalIncome">0</span></div>
+      <label>LIC Installment</label>
+      <input type="number" inputmode="decimal" class="ded1" oninput="calculate()">
+
+      <label>MF SIP / Stocks</label>
+      <input type="number" inputmode="decimal" class="ded1" oninput="calculate()">
+
+      <label>Sukanya Samriddhi</label>
+      <input type="number" inputmode="decimal" class="ded1" oninput="calculate()">
+
+      <label>PPF SIP</label>
+      <input type="number" inputmode="decimal" class="ded1" oninput="calculate()">
+
+      <label>Other Deductions</label>
+      <input type="number" inputmode="decimal" class="ded1" oninput="calculate()">
+
+      <div class="result">Total P1 Deductions: ₹ <span id="totalDed1">0</span></div>
+    </div>
+
+    <!-- DEDUCTIONS PARTNER 2 -->
+    <div class="section">
+      <h2>Mandatory Deductions - Partner 2</h2>
+      <label>EMI / Credit Card</label>
+      <input type="number" inputmode="decimal" class="ded2" oninput="calculate()">
+
+      <label>LIC Installment</label>
+      <input type="number" inputmode="decimal" class="ded2" oninput="calculate()">
+
+      <label>MF SIP / Stocks</label>
+      <input type="number" inputmode="decimal" class="ded2" oninput="calculate()">
+
+      <label>Sukanya Samriddhi</label>
+      <input type="number" inputmode="decimal" class="ded2" oninput="calculate()">
+
+      <label>PPF SIP</label>
+      <input type="number" inputmode="decimal" class="ded2" oninput="calculate()">
+
+      <label>Other Deductions</label>
+      <input type="number" inputmode="decimal" class="ded2" oninput="calculate()">
+
+      <div class="result">Total P2 Deductions: ₹ <span id="totalDed2">0</span></div>
+    </div>
+
+    <!-- JOINT CONTRIBUTION -->
+    <div class="section joint-contrib-section" id="jointSection">
+      <h2>Joint Contribution</h2>
+      <div class="result">Partner 1 Contribution: ₹ <span id="contri1">0</span></div>
+      <div class="result">Partner 2 Contribution: ₹ <span id="contri2">0</span></div>
+      <div class="result">Total Joint Contribution: ₹ <span id="totalContri">0</span></div>
+
+      <div class="split-visual" id="splitVisual" hidden>
+        <div class="split-labels">
+          <span>Partner 1</span>
+          <span>Partner 2</span>
+        </div>
+        <div class="split-bar" aria-hidden="true">
+          <div class="split-seg-p1" id="splitP1" style="width:50%"></div>
+          <div class="split-seg-p2" id="splitP2" style="width:50%"></div>
+        </div>
+        <p class="pct-note" id="splitPctNote"></p>
+      </div>
+
+      <label>Emergency Fund Deduction (Manual)</label>
+      <input type="number" inputmode="decimal" id="emergency" oninput="calculate()">
+
+      <div class="highlight">
+        Available After Emergency: ₹ <span id="available">0</span>
+      </div>
+    </div>
+
+    <!-- MONTHLY EXPENSES -->
+    <div class="section">
+      <h2>Monthly Expense Projection</h2>
+      <label>Cook</label>
+      <input type="number" inputmode="decimal" class="expense" value="7000" oninput="calculate()">
+
+      <label>Maid</label>
+      <input type="number" inputmode="decimal" class="expense" value="1500" oninput="calculate()">
+
+      <label>Nanny</label>
+      <input type="number" inputmode="decimal" class="expense" value="12000" oninput="calculate()">
+
+      <label>Pet Care</label>
+      <input type="number" inputmode="decimal" class="expense" value="4500" oninput="calculate()">
+
+      <label>Diapers</label>
+      <input type="number" inputmode="decimal" class="expense" value="1200" oninput="calculate()">
+
+      <label>Milk Formula Powder</label>
+      <input type="number" inputmode="decimal" class="expense" value="450" oninput="calculate()">
+
+      <label>Baby Other Products</label>
+      <input type="number" inputmode="decimal" class="expense" value="1700" oninput="calculate()">
+
+      <label>Milk</label>
+      <input type="number" inputmode="decimal" class="expense" value="1800" oninput="calculate()">
+
+      <label>Vegetables</label>
+      <input type="number" inputmode="decimal" class="expense" value="4000" oninput="calculate()">
+
+      <label>Grocery</label>
+      <input type="number" inputmode="decimal" class="expense" value="10000" oninput="calculate()">
+
+      <label>Light Bill</label>
+      <input type="number" inputmode="decimal" class="expense" value="2500" oninput="calculate()">
+
+      <label>Gas</label>
+      <input type="number" inputmode="decimal" class="expense" value="900" oninput="calculate()">
+
+      <label>Internet + Mobile</label>
+      <input type="number" inputmode="decimal" class="expense" value="2500" oninput="calculate()">
+
+      <label>Fuel</label>
+      <input type="number" inputmode="decimal" class="expense" value="5000" oninput="calculate()">
+
+      <label>Medical</label>
+      <input type="number" inputmode="decimal" class="expense" value="4500" oninput="calculate()">
+
+      <label>Eating Out</label>
+      <input type="number" inputmode="decimal" class="expense" value="10000" oninput="calculate()">
+
+      <label>Miscellaneous / Buffer</label>
+      <input type="number" inputmode="decimal" class="expense" value="10000" oninput="calculate()">
+
+      <div class="result">
+        Total Projected Expenses: ₹ <span id="totalExpense">0</span>
+      </div>
+    </div>
+
+    <!-- END SUMMARY -->
+    <div class="section">
+      <h2>End of Month Summary</h2>
+      <div class="sub-result">
+        Total Joint Contribution (After Emergency): ₹ <span id="available2">0</span>
+      </div>
+
+      <label>Total Actual Spending (Enter at Month End)</label>
+      <input type="number" inputmode="decimal" id="actualSpending" oninput="calculate()">
+
+      <div class="highlight">
+        Balance Remaining in Joint Account: ₹ <span id="finalBalance" class="positive">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-history">
+    <div class="header-bar">Saved joint contributions</div>
+    <div class="history-compare-panel">
+      <h3 class="history-compare-heading">Compare two months</h3>
+      <p class="history-compare-hint">Pick two saved snapshots to compare total joint contribution and each partner’s share.</p>
+      <div class="compare-row">
+        <div>
+          <label for="compare-select-a">Month A</label>
+          <select id="compare-select-a" aria-label="First month to compare"></select>
+        </div>
+        <div>
+          <label for="compare-select-b">Month B</label>
+          <select id="compare-select-b" aria-label="Second month to compare"></select>
+        </div>
+      </div>
+      <button type="button" class="compare-btn" onclick="runCompare()">Compare</button>
+      <div id="compare-output" class="compare-output" role="region" aria-label="Comparison results"></div>
+    </div>
+    <div id="historyList"></div>
+  </div>
 </div>
 
-<!-- DEDUCTIONS PARTNER 1 -->
-<div class="section">
-<h2>Mandatory Deductions - Partner 1</h2>
-
-<label>EMI / Credit Card</label>
-<input type="number" class="ded1" oninput="calculate()">
-
-<label>LIC Installment</label>
-<input type="number" class="ded1" oninput="calculate()">
-
-<label>MF SIP / Stocks</label>
-<input type="number" class="ded1" oninput="calculate()">
-
-<label>Sukanya Samriddhi</label>
-<input type="number" class="ded1" oninput="calculate()">
-
-<label>PPF SIP</label>
-<input type="number" class="ded1" oninput="calculate()">
-
-<label>Other Deductions</label>
-<input type="number" class="ded1" oninput="calculate()">
-
-<div class="result">Total P1 Deductions: ₹ <span id="totalDed1">0</span></div>
+<div class="bottom-bar">
+  <div class="bottom-bar__row">
+    <button type="button" class="secondary-btn" onclick="resetMonth()">Reset</button>
+    <button type="button" class="save-btn" onclick="saveSnapshot()">Save</button>
+  </div>
+  <div class="bottom-bar__row bottom-bar__row--actions">
+    <button type="button" class="primary-btn" id="btn-export-pdf" onclick="exportPDF()">Export PDF</button>
+    <button type="button" class="secondary-btn" id="btn-print-report" onclick="printReport()">Print</button>
+  </div>
 </div>
 
-<!-- DEDUCTIONS PARTNER 2 -->
-<div class="section">
-<h2>Mandatory Deductions - Partner 2</h2>
+<div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-<label>EMI / Credit Card</label>
-<input type="number" class="ded2" oninput="calculate()">
+<!-- Filled in JS then passed to html2pdf (off-screen) -->
+<div id="pdf-export-root" class="pdf-export-root" aria-hidden="true">
+  <div class="pdf-doc">
+    <p class="pdf-brand">Joint Finance Planner</p>
+    <p class="pdf-sub">Household income, mandatory deductions &amp; joint contribution</p>
+    <div class="pdf-meta">
+      <span><strong>Period:</strong> <span id="pdf-period"></span></span>
+      <span id="pdf-generated"></span>
+    </div>
 
-<label>LIC Installment</label>
-<input type="number" class="ded2" oninput="calculate()">
+    <div class="pdf-section">
+      <h2>Income</h2>
+      <table>
+        <tbody>
+          <tr><td>Salary — Partner 1</td><td class="num" id="pdf-salary1"></td></tr>
+          <tr><td>Salary — Partner 2</td><td class="num" id="pdf-salary2"></td></tr>
+          <tr class="pdf-total-row"><td>Total income</td><td class="num" id="pdf-total-income"></td></tr>
+        </tbody>
+      </table>
+    </div>
 
-<label>MF SIP / Stocks</label>
-<input type="number" class="ded2" oninput="calculate()">
+    <div class="pdf-section">
+      <h2>Mandatory deductions — Partner 1</h2>
+      <table><tbody id="pdf-ded1-tbody"></tbody></table>
+      <table><tbody><tr class="pdf-total-row"><td>Total P1 deductions</td><td class="num" id="pdf-total-ded1"></td></tr></tbody></table>
+    </div>
 
-<label>Sukanya Samriddhi</label>
-<input type="number" class="ded2" oninput="calculate()">
+    <div class="pdf-section">
+      <h2>Mandatory deductions — Partner 2</h2>
+      <table><tbody id="pdf-ded2-tbody"></tbody></table>
+      <table><tbody><tr class="pdf-total-row"><td>Total P2 deductions</td><td class="num" id="pdf-total-ded2"></td></tr></tbody></table>
+    </div>
 
-<label>PPF SIP</label>
-<input type="number" class="ded2" oninput="calculate()">
+    <div class="pdf-section">
+      <h2>Joint contribution</h2>
+      <table>
+        <tbody>
+          <tr><td>Partner 1 (salary − deductions)</td><td class="num" id="pdf-contri1"></td></tr>
+          <tr><td>Partner 2 (salary − deductions)</td><td class="num" id="pdf-contri2"></td></tr>
+          <tr class="pdf-total-row"><td>Total joint contribution</td><td class="num" id="pdf-total-contri"></td></tr>
+          <tr><td>Emergency fund (manual)</td><td class="num" id="pdf-emergency"></td></tr>
+        </tbody>
+      </table>
+      <p class="pdf-split-note" id="pdf-split-line"></p>
+      <table class="pdf-highlight">
+        <tbody>
+          <tr><td>Available after emergency</td><td class="num" id="pdf-available"></td></tr>
+        </tbody>
+      </table>
+    </div>
 
-<label>Other Deductions</label>
-<input type="number" class="ded2" oninput="calculate()">
+    <div class="pdf-section">
+      <h2>Monthly expense projection</h2>
+      <table><tbody id="pdf-expense-tbody"></tbody></table>
+      <table><tbody><tr class="pdf-total-row"><td>Total projected expenses</td><td class="num" id="pdf-total-expense"></td></tr></tbody></table>
+    </div>
 
-<div class="result">Total P2 Deductions: ₹ <span id="totalDed2">0</span></div>
+    <div class="pdf-section">
+      <h2>End of month</h2>
+      <table>
+        <tbody>
+          <tr><td>Joint contribution after emergency</td><td class="num" id="pdf-available2"></td></tr>
+          <tr><td>Actual spending (month end)</td><td class="num" id="pdf-actual"></td></tr>
+          <tr class="pdf-total-row"><td>Balance in joint account</td><td class="num" id="pdf-final-balance"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
-<!-- JOINT CONTRIBUTION -->
-<div class="section">
-<h2>Joint Contribution</h2>
-
-<div class="result">Partner 1 Contribution: ₹ <span id="contri1">0</span></div>
-<div class="result">Partner 2 Contribution: ₹ <span id="contri2">0</span></div>
-<div class="result">Total Joint Contribution: ₹ <span id="totalContri">0</span></div>
-
-<label>Emergency Fund Deduction (Manual)</label>
-<input type="number" id="emergency" oninput="calculate()">
-
-<div class="highlight">
-Available After Emergency: ₹ <span id="available">0</span>
-</div>
-</div>
-
-<!-- MONTHLY EXPENSES -->
-<div class="section">
-<h2>Monthly Expense Projection</h2>
-
-<label>Cook</label>
-<input type="number" class="expense" value="7000" oninput="calculate()">
-
-<label>Maid</label>
-<input type="number" class="expense" value="1500" oninput="calculate()">
-
-<label>Nanny</label>
-<input type="number" class="expense" value="12000" oninput="calculate()">
-
-<label>Pet Care</label>
-<input type="number" class="expense" value="4500" oninput="calculate()">
-
-<label>Diapers</label>
-<input type="number" class="expense" value="1200" oninput="calculate()">
-
-<label>Milk Formula Powder</label>
-<input type="number" class="expense" value="450" oninput="calculate()">
-
-<label>Baby Other Products</label>
-<input type="number" class="expense" value="1700" oninput="calculate()">
-
-<label>Milk</label>
-<input type="number" class="expense" value="1800" oninput="calculate()">
-
-<label>Vegetables</label>
-<input type="number" class="expense" value="4000" oninput="calculate()">
-
-<label>Grocery</label>
-<input type="number" class="expense" value="10000" oninput="calculate()">
-
-<label>Light Bill</label>
-<input type="number" class="expense" value="2500" oninput="calculate()">
-
-<label>Gas</label>
-<input type="number" class="expense" value="900" oninput="calculate()">
-
-<label>Internet + Mobile</label>
-<input type="number" class="expense" value="2500" oninput="calculate()">
-
-<label>Fuel</label>
-<input type="number" class="expense" value="5000" oninput="calculate()">
-
-<label>Medical</label>
-<input type="number" class="expense" value="4500" oninput="calculate()">
-
-<label>Eating Out</label>
-<input type="number" class="expense" value="10000" oninput="calculate()">
-
-<label>Miscellaneous / Buffer</label>
-<input type="number" class="expense" value="10000" oninput="calculate()">
-
-<div class="result">
-Total Projected Expenses: ₹ <span id="totalExpense">0</span>
-</div>
-</div>
-
-<!-- END SUMMARY -->
-<div class="section">
-<h2>End of Month Summary</h2>
-
-<div class="sub-result">
-Total Joint Contribution (After Emergency): ₹ <span id="available2">0</span>
-</div>
-
-<label>Total Actual Spending (Enter at Month End)</label>
-<input type="number" id="actualSpending" oninput="calculate()">
-
-<div class="highlight">
-Balance Remaining in Joint Account: ₹ <span id="finalBalance">0</span>
-</div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
-function sumClass(cls) {
-    let total = 0;
-    document.querySelectorAll("." + cls).forEach(el => {
-        total += Number(el.value) || 0;
-    });
-    return total;
+const HISTORY_KEY = "jointExpenseHistory_v1";
+const SEED_KEY = "jointExpenseHistory_seeded_v1";
+
+const PDF_DED_LABELS = [
+  "EMI / Credit Card",
+  "LIC Installment",
+  "MF SIP / Stocks",
+  "Sukanya Samriddhi",
+  "PPF SIP",
+  "Other Deductions",
+];
+
+const PDF_EXP_LABELS = [
+  "Cook",
+  "Maid",
+  "Nanny",
+  "Pet Care",
+  "Diapers",
+  "Milk Formula Powder",
+  "Baby Other Products",
+  "Milk",
+  "Vegetables",
+  "Grocery",
+  "Light Bill",
+  "Gas",
+  "Internet + Mobile",
+  "Fuel",
+  "Medical",
+  "Eating Out",
+  "Miscellaneous / Buffer",
+];
+
+function formatRupeePdf(n) {
+  return "₹ " + (Number(n) || 0).toLocaleString("en-IN");
 }
+
+function showToast(message, durationMs, isError) {
+  if (durationMs == null) durationMs = 3400;
+  var c = document.getElementById("toast-container");
+  if (!c) return;
+  var t = document.createElement("div");
+  t.className = "toast" + (isError ? " toast--error" : "");
+  t.textContent = message;
+  c.appendChild(t);
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      t.classList.add("toast--show");
+    });
+  });
+  setTimeout(function () {
+    t.classList.remove("toast--show");
+    setTimeout(function () {
+      if (t.parentNode) t.parentNode.removeChild(t);
+    }, 280);
+  }, durationMs);
+}
+
+function fillPdfTemplate() {
+  calculate();
+
+  const s1 = Number(document.getElementById("salary1").value) || 0;
+  const s2 = Number(document.getElementById("salary2").value) || 0;
+  const totalIncome = s1 + s2;
+  const d1 = sumClass("ded1");
+  const d2 = sumClass("ded2");
+  const c1 = s1 - d1;
+  const c2 = s2 - d2;
+  const totalContri = c1 + c2;
+  const emergency = Number(document.getElementById("emergency").value) || 0;
+  const available = totalContri - emergency;
+  const totalExpense = sumClass("expense");
+  const actual = Number(document.getElementById("actualSpending").value) || 0;
+  const finalBalance = available - actual;
+
+  document.getElementById("pdf-period").textContent = getSelectedMonthLabel();
+  document.getElementById("pdf-generated").textContent =
+    "Generated: " + new Date().toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+
+  document.getElementById("pdf-salary1").textContent = formatRupeePdf(s1);
+  document.getElementById("pdf-salary2").textContent = formatRupeePdf(s2);
+  document.getElementById("pdf-total-income").textContent = formatRupeePdf(totalIncome);
+
+  const ded1Els = document.querySelectorAll(".ded1");
+  let ded1Html = "";
+  for (let i = 0; i < PDF_DED_LABELS.length; i++) {
+    const v = ded1Els[i] ? Number(ded1Els[i].value) || 0 : 0;
+    ded1Html += "<tr><td>" + PDF_DED_LABELS[i] + "</td><td class=\"num\">" + formatRupeePdf(v) + "</td></tr>";
+  }
+  document.getElementById("pdf-ded1-tbody").innerHTML = ded1Html;
+
+  const ded2Els = document.querySelectorAll(".ded2");
+  let ded2Html = "";
+  for (let i = 0; i < PDF_DED_LABELS.length; i++) {
+    const v = ded2Els[i] ? Number(ded2Els[i].value) || 0 : 0;
+    ded2Html += "<tr><td>" + PDF_DED_LABELS[i] + "</td><td class=\"num\">" + formatRupeePdf(v) + "</td></tr>";
+  }
+  document.getElementById("pdf-ded2-tbody").innerHTML = ded2Html;
+
+  document.getElementById("pdf-total-ded1").textContent = formatRupeePdf(d1);
+  document.getElementById("pdf-total-ded2").textContent = formatRupeePdf(d2);
+
+  document.getElementById("pdf-contri1").textContent = formatRupeePdf(c1);
+  document.getElementById("pdf-contri2").textContent = formatRupeePdf(c2);
+  document.getElementById("pdf-total-contri").textContent = formatRupeePdf(totalContri);
+  document.getElementById("pdf-emergency").textContent = formatRupeePdf(emergency);
+
+  const splitEl = document.getElementById("pdf-split-line");
+  if (totalContri > 0) {
+    const w1 = (c1 / totalContri) * 100;
+    const w2 = (c2 / totalContri) * 100;
+    splitEl.textContent = "Share of joint pot: " + w1.toFixed(1) + "% / " + w2.toFixed(1) + "%";
+  } else {
+    splitEl.textContent = "";
+  }
+
+  document.getElementById("pdf-available").textContent = formatRupeePdf(available);
+  document.getElementById("pdf-available2").textContent = formatRupeePdf(available);
+  document.getElementById("pdf-actual").textContent = formatRupeePdf(actual);
+
+  const fbEl = document.getElementById("pdf-final-balance");
+  fbEl.textContent = formatRupeePdf(finalBalance);
+  fbEl.style.color = finalBalance >= 0 ? "#059669" : "#dc2626";
+
+  const expEls = document.querySelectorAll(".expense");
+  let expHtml = "";
+  for (let i = 0; i < PDF_EXP_LABELS.length; i++) {
+    const v = expEls[i] ? Number(expEls[i].value) || 0 : 0;
+    expHtml += "<tr><td>" + PDF_EXP_LABELS[i] + "</td><td class=\"num\">" + formatRupeePdf(v) + "</td></tr>";
+  }
+  document.getElementById("pdf-expense-tbody").innerHTML = expHtml;
+  document.getElementById("pdf-total-expense").textContent = formatRupeePdf(totalExpense);
+}
+
+function sumClass(cls) {
+  let total = 0;
+  document.querySelectorAll("." + cls).forEach(function (el) {
+    total += Number(el.value) || 0;
+  });
+  return total;
+}
+
+function valsClass(cls) {
+  const a = [];
+  document.querySelectorAll("." + cls).forEach(function (el) {
+    a.push(el.value);
+  });
+  return a;
+}
+
+function setClassValues(cls, arr) {
+  const els = document.querySelectorAll("." + cls);
+  for (let i = 0; i < els.length; i++) {
+    if (arr && arr[i] !== undefined && arr[i] !== null) els[i].value = arr[i];
+  }
+}
+
+let contribSectionWasReady = false;
 
 function calculate() {
-    let s1 = Number(document.getElementById("salary1").value) || 0;
-    let s2 = Number(document.getElementById("salary2").value) || 0;
-    let totalIncome = s1 + s2;
+  const s1 = Number(document.getElementById("salary1").value) || 0;
+  const s2 = Number(document.getElementById("salary2").value) || 0;
+  const totalIncome = s1 + s2;
 
-    let d1 = sumClass("ded1");
-    let d2 = sumClass("ded2");
+  const d1 = sumClass("ded1");
+  const d2 = sumClass("ded2");
 
-    let c1 = s1 - d1;
-    let c2 = s2 - d2;
-    let totalContri = c1 + c2;
+  const c1 = s1 - d1;
+  const c2 = s2 - d2;
+  const totalContri = c1 + c2;
 
-    let emergency = Number(document.getElementById("emergency").value) || 0;
-    let available = totalContri - emergency;
+  const emergency = Number(document.getElementById("emergency").value) || 0;
+  const available = totalContri - emergency;
 
-    let totalExpense = sumClass("expense");
+  const totalExpense = sumClass("expense");
 
-    let actual = Number(document.getElementById("actualSpending").value) || 0;
-    let finalBalance = available - actual;
+  const actual = Number(document.getElementById("actualSpending").value) || 0;
+  const finalBalance = available - actual;
 
-    document.getElementById("totalIncome").innerText = totalIncome;
-    document.getElementById("totalDed1").innerText = d1;
-    document.getElementById("totalDed2").innerText = d2;
-    document.getElementById("contri1").innerText = c1;
-    document.getElementById("contri2").innerText = c2;
-    document.getElementById("totalContri").innerText = totalContri;
-    document.getElementById("available").innerText = available;
-    document.getElementById("available2").innerText = available;
-    document.getElementById("totalExpense").innerText = totalExpense;
-    document.getElementById("finalBalance").innerText = finalBalance;
+  document.getElementById("totalIncome").innerText = totalIncome;
+  document.getElementById("totalDed1").innerText = d1;
+  document.getElementById("totalDed2").innerText = d2;
+  document.getElementById("contri1").innerText = c1;
+  document.getElementById("contri2").innerText = c2;
+  document.getElementById("totalContri").innerText = totalContri;
+  document.getElementById("available").innerText = available;
+  document.getElementById("available2").innerText = available;
+  document.getElementById("totalExpense").innerText = totalExpense;
 
-    document.getElementById("finalBalance").className =
-        finalBalance >= 0 ? "positive" : "negative";
+  const fb = document.getElementById("finalBalance");
+  fb.innerText = finalBalance;
+  fb.className = finalBalance >= 0 ? "positive" : "negative";
+
+  updateSplitBar(c1, c2, totalContri);
+  maybeFlashContributions(totalIncome, d1, d2, totalContri);
 }
 
-calculate();
-</script>
-<div class="bottom-bar">
-    <button class="secondary-btn" onclick="resetMonth()">Reset Month</button>
-    <button class="primary-btn" onclick="exportPDF()">Export PDF</button>
-</div>
-</body>
-</html>
-</script>
-<script type="module">
+function updateSplitBar(c1, c2, totalContri) {
+  const vis = document.getElementById("splitVisual");
+  const p1 = document.getElementById("splitP1");
+  const p2 = document.getElementById("splitP2");
+  const note = document.getElementById("splitPctNote");
 
+  if (totalContri <= 0) {
+    vis.hidden = true;
+    return;
+  }
+  vis.hidden = false;
+  const w1 = Math.max(0, (c1 / totalContri) * 100);
+  const w2 = Math.max(0, (c2 / totalContri) * 100);
+  p1.style.width = w1 + "%";
+  p2.style.width = w2 + "%";
+  note.textContent =
+    "Share of joint pot: " +
+    w1.toFixed(1) +
+    "% / " +
+    w2.toFixed(1) +
+    "%";
+}
+
+function maybeFlashContributions(totalIncome, d1, d2, totalContri) {
+  const joint = document.getElementById("jointSection");
+  const ready = totalIncome > 0 && (d1 + d2) > 0 && totalContri > 0;
+  if (!ready) {
+    contribSectionWasReady = false;
+    return;
+  }
+  if (contribSectionWasReady) return;
+  contribSectionWasReady = true;
+
+  joint.classList.remove("flash-active");
+  void joint.offsetWidth;
+  joint.classList.add("flash-active");
+}
+
+function getSelectedMonthLabel() {
+  const active = document.querySelector(".month-tabs button.active");
+  return active ? active.textContent.trim() : "Current month";
+}
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveHistory(arr) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(arr));
+}
+
+function seedJanuary2026IfNeeded() {
+  if (localStorage.getItem(SEED_KEY)) return;
+  const list = loadHistory();
+  if (list.length > 0) {
+    localStorage.setItem(SEED_KEY, "1");
+    return;
+  }
+  list.push({
+    id: "seed-jan-2026",
+    monthLabel: "January 2026",
+    savedAt: new Date(2026, 0, 15, 10, 0, 0).toISOString(),
+    totalIncome: 240000,
+    totalDed1: 45000,
+    totalDed2: 38000,
+    contri1: 75000,
+    contri2: 82000,
+    totalContri: 157000,
+    p1Pct: 47.8,
+    p2Pct: 52.2,
+    availableAfterEmergency: 150000,
+    emergency: 7000,
+    note: "Example snapshot — replace with your Save from the planner.",
+  });
+  saveHistory(list);
+  localStorage.setItem(SEED_KEY, "1");
+}
+
+function renderHistory() {
+  seedJanuary2026IfNeeded();
+  const box = document.getElementById("historyList");
+  const items = loadHistory();
+  populateCompareSelects();
+  const cmpOut = document.getElementById("compare-output");
+  if (cmpOut) {
+    cmpOut.classList.remove("visible");
+    cmpOut.innerHTML = "";
+  }
+  if (items.length === 0) {
+    box.innerHTML = '<p class="history-empty">No saves yet. Use Save at the bottom after reviewing your numbers.</p>';
+    return;
+  }
+  box.innerHTML = items
+    .map(function (entry) {
+      const when = entry.savedAt
+        ? new Date(entry.savedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
+        : "";
+      return (
+        '<div class="history-card">' +
+        "<h3>" +
+        escapeHtml(entry.monthLabel || "Saved") +
+        "</h3>" +
+        '<div class="history-meta">' +
+        escapeHtml(when) +
+        "</div>" +
+        '<div class="history-row"><span>Partner 1</span><span>₹ ' +
+        formatNum(entry.contri1) +
+        " (" +
+        (entry.p1Pct != null ? entry.p1Pct.toFixed(1) : "—") +
+        '%)</span></div>' +
+        '<div class="history-row"><span>Partner 2</span><span>₹ ' +
+        formatNum(entry.contri2) +
+        " (" +
+        (entry.p2Pct != null ? entry.p2Pct.toFixed(1) : "—") +
+        '%)</span></div>' +
+        '<div class="history-row"><span>Total joint</span><span>₹ ' +
+        formatNum(entry.totalContri) +
+        "</span></div>" +
+        '<div class="history-row"><span>After emergency</span><span>₹ ' +
+        formatNum(entry.availableAfterEmergency) +
+        "</span></div>" +
+        (entry.note
+          ? '<p style="margin:10px 0 0;font-size:13px;color:#64748b;">' + escapeHtml(entry.note) + "</p>"
+          : "") +
+        "</div>"
+      );
+    })
+    .join("");
+}
+
+function formatNum(n) {
+  if (n == null || n === "") return "0";
+  return Number(n).toLocaleString("en-IN");
+}
+
+function escapeHtml(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function populateCompareSelects() {
+  const items = loadHistory();
+  const a = document.getElementById("compare-select-a");
+  const b = document.getElementById("compare-select-b");
+  if (!a || !b) return;
+  var parts = ['<option value="">— Select —</option>'];
+  for (var i = 0; i < items.length; i++) {
+    var e = items[i];
+    var short = e.savedAt
+      ? new Date(e.savedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+      : "";
+    var lab = (e.monthLabel || "Saved") + (short ? " · " + short : "");
+    parts.push(
+      '<option value="' +
+        String(e.id).replace(/"/g, "&quot;") +
+        '">' +
+        escapeHtml(lab) +
+        "</option>"
+    );
+  }
+  var html = parts.join("");
+  a.innerHTML = html;
+  b.innerHTML = html;
+}
+
+function runCompare() {
+  var idA = document.getElementById("compare-select-a").value;
+  var idB = document.getElementById("compare-select-b").value;
+  if (!idA || !idB) {
+    showToast("Select two months to compare.", 2800, true);
+    return;
+  }
+  if (idA === idB) {
+    showToast("Pick two different snapshots.", 2800, true);
+    return;
+  }
+  var items = loadHistory();
+  function findById(id) {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id === id) return items[i];
+    }
+    return null;
+  }
+  var A = findById(idA);
+  var B = findById(idB);
+  if (!A || !B) {
+    showToast("Could not load those entries.", 2800, true);
+    return;
+  }
+  var labelA = escapeHtml(A.monthLabel || "Month A");
+  var labelB = escapeHtml(B.monthLabel || "Month B");
+  function fmt(n) {
+    return "₹ " + formatNum(n);
+  }
+  function pct(e, key) {
+    if (e[key] == null || e[key] === "") return "—";
+    return Number(e[key]).toFixed(1) + "%";
+  }
+  var out = document.getElementById("compare-output");
+  out.innerHTML =
+    '<table class="compare-table">' +
+    "<thead><tr><th>Metric</th><th>" +
+    labelA +
+    "</th><th>" +
+    labelB +
+    "</th></tr></thead><tbody>" +
+    '<tr><td class="metric">Total joint contribution</td><td>' +
+    fmt(A.totalContri) +
+    "</td><td>" +
+    fmt(B.totalContri) +
+    "</td></tr>" +
+    '<tr><td class="metric">Partner 1</td><td>' +
+    fmt(A.contri1) +
+    "</td><td>" +
+    fmt(B.contri1) +
+    "</td></tr>" +
+    '<tr><td class="metric">Partner 2</td><td>' +
+    fmt(A.contri2) +
+    "</td><td>" +
+    fmt(B.contri2) +
+    "</td></tr>" +
+    '<tr><td class="metric">Partner 1 share</td><td>' +
+    pct(A, "p1Pct") +
+    "</td><td>" +
+    pct(B, "p1Pct") +
+    "</td></tr>" +
+    '<tr><td class="metric">Partner 2 share</td><td>' +
+    pct(A, "p2Pct") +
+    "</td><td>" +
+    pct(B, "p2Pct") +
+    "</td></tr>" +
+    '<tr><td class="metric">After emergency</td><td>' +
+    fmt(A.availableAfterEmergency) +
+    "</td><td>" +
+    fmt(B.availableAfterEmergency) +
+    "</td></tr>" +
+    "</tbody></table>";
+  out.classList.add("visible");
+}
+
+function collectFormState() {
+  return {
+    salary1: document.getElementById("salary1").value,
+    salary2: document.getElementById("salary2").value,
+    emergency: document.getElementById("emergency").value,
+    actualSpending: document.getElementById("actualSpending").value,
+    ded1: valsClass("ded1"),
+    ded2: valsClass("ded2"),
+    expense: valsClass("expense"),
+  };
+}
+
+function applyFormState(data) {
+  if (!data) return;
+  if (data.salary1 != null) document.getElementById("salary1").value = data.salary1;
+  if (data.salary2 != null) document.getElementById("salary2").value = data.salary2;
+  if (data.emergency != null) document.getElementById("emergency").value = data.emergency;
+  if (data.actualSpending != null) document.getElementById("actualSpending").value = data.actualSpending;
+  if (data.ded1) setClassValues("ded1", data.ded1);
+  if (data.ded2) setClassValues("ded2", data.ded2);
+  if (data.expense) setClassValues("expense", data.expense);
+  calculate();
+}
+
+function saveSnapshot() {
+  const s1 = Number(document.getElementById("salary1").value) || 0;
+  const s2 = Number(document.getElementById("salary2").value) || 0;
+  const d1 = sumClass("ded1");
+  const d2 = sumClass("ded2");
+  const c1 = s1 - d1;
+  const c2 = s2 - d2;
+  const totalContri = c1 + c2;
+  const emergency = Number(document.getElementById("emergency").value) || 0;
+  const available = totalContri - emergency;
+  const totalIncome = s1 + s2;
+
+  let p1Pct = null;
+  let p2Pct = null;
+  if (totalContri > 0) {
+    p1Pct = (c1 / totalContri) * 100;
+    p2Pct = (c2 / totalContri) * 100;
+  }
+
+  const entry = {
+    id: "h-" + Date.now(),
+    monthLabel: getSelectedMonthLabel(),
+    savedAt: new Date().toISOString(),
+    totalIncome: totalIncome,
+    totalDed1: d1,
+    totalDed2: d2,
+    contri1: c1,
+    contri2: c2,
+    totalContri: totalContri,
+    p1Pct: p1Pct,
+    p2Pct: p2Pct,
+    availableAfterEmergency: available,
+    emergency: emergency,
+    form: collectFormState(),
+  };
+
+  const list = loadHistory();
+  list.unshift(entry);
+  saveHistory(list);
+  if (typeof window.persistToCloud === "function") window.persistToCloud();
+
+  renderHistory();
+  showToast("Saved to History · " + entry.monthLabel);
+}
+
+function resetMonth() {
+  if (!confirm("Clear all amounts for this planner view?")) return;
+  document.getElementById("salary1").value = "";
+  document.getElementById("salary2").value = "";
+  document.getElementById("emergency").value = "";
+  document.getElementById("actualSpending").value = "";
+  document.querySelectorAll(".ded1, .ded2").forEach(function (el) {
+    el.value = "";
+  });
+  const expenseDefaults = [
+    7000, 1500, 12000, 4500, 1200, 450, 1700, 1800, 4000, 10000, 2500, 900, 2500, 5000, 4500, 10000, 10000,
+  ];
+  document.querySelectorAll(".expense").forEach(function (el, i) {
+    el.value = expenseDefaults[i] != null ? String(expenseDefaults[i]) : "";
+  });
+  contribSectionWasReady = false;
+  calculate();
+}
+
+function printReport() {
+  fillPdfTemplate();
+  showToast("Print ready", 2600);
+  setTimeout(function () {
+    window.print();
+  }, 280);
+}
+
+function exportPDF() {
+  if (typeof html2pdf === "undefined") {
+    showToast("PDF library did not load. Refresh and try again.", 4000, true);
+    return;
+  }
+  const btn = document.getElementById("btn-export-pdf");
+  const root = document.getElementById("pdf-export-root");
+  fillPdfTemplate();
+
+  const label = getSelectedMonthLabel().replace(/[^\w\u0900-\u0FFF-]+/g, "-").replace(/^-|-$/g, "");
+  const filename = "joint-finance-" + (label || "export") + "-" + Date.now() + ".pdf";
+
+  const scale = Math.min(2, Math.max(1.25, window.devicePixelRatio || 1));
+
+  const clone = root.cloneNode(true);
+  clone.removeAttribute("id");
+  clone.setAttribute("aria-hidden", "true");
+  clone.className = "pdf-export-root pdf-export--capturing";
+  document.body.appendChild(clone);
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: filename,
+    image: { type: "jpeg", quality: 0.92 },
+    html2canvas: {
+      scale: scale,
+      backgroundColor: "#ffffff",
+      useCORS: true,
+      logging: false,
+      allowTaint: true,
+    },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    pagebreak: { mode: "css" },
+  };
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Working…";
+  }
+
+  function finish() {
+    if (clone.parentNode) {
+      clone.parentNode.removeChild(clone);
+    }
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Export PDF";
+    }
+  }
+
+  function runPdf() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var chain = html2pdf().set(opt).from(clone).save();
+        if (chain && typeof chain.then === "function") {
+          chain
+            .then(function () {
+              finish();
+              showToast("PDF ready");
+            })
+            .catch(function (err) {
+              console.warn(err);
+              finish();
+              showToast("Couldn't create PDF. Try again or use Print.", 4200, true);
+            });
+        } else {
+          setTimeout(function () {
+            finish();
+            showToast("PDF ready");
+          }, 2000);
+        }
+      });
+    });
+  }
+
+  runPdf();
+}
+
+function initMonthTabs() {
+  const wrap = document.getElementById("monthTabs");
+  const now = new Date();
+  const months = [];
+  for (let i = -3; i <= 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    months.push(d);
+  }
+  wrap.innerHTML = months
+    .map(function (d, idx) {
+      const label = d.toLocaleString("en-IN", { month: "long", year: "numeric" });
+      const active = idx === 3 ? " active" : "";
+      return '<button type="button" class="' + active.trim() + '" data-month="' + label + '">' + label + "</button>";
+    })
+    .join("");
+
+  wrap.querySelectorAll("button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      wrap.querySelectorAll("button").forEach(function (b) {
+        b.classList.remove("active");
+      });
+      btn.classList.add("active");
+    });
+  });
+}
+
+function initTabs() {
+  const planner = document.getElementById("view-planner");
+  const history = document.getElementById("view-history");
+  document.querySelectorAll(".top-nav button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const v = btn.getAttribute("data-view");
+      document.querySelectorAll(".top-nav button").forEach(function (b) {
+        b.classList.toggle("active", b === btn);
+        b.setAttribute("aria-selected", b === btn ? "true" : "false");
+      });
+      if (v === "planner") {
+        planner.style.display = "block";
+        history.classList.remove("visible");
+      } else {
+        planner.style.display = "none";
+        history.classList.add("visible");
+        renderHistory();
+      }
+    });
+  });
+}
+
+initMonthTabs();
+initTabs();
+seedJanuary2026IfNeeded();
+calculate();
+populateCompareSelects();
+</script>
+
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -366,37 +1641,77 @@ const firebaseConfig = {
   storageBucket: "joint-expense-835de.firebasestorage.app",
   messagingSenderId: "977090554220",
   appId: "1:977090554220:web:ecfbb2fd2d7e57fda0ab49",
-  measurementId: "G-EP2Z0WYJX1"
+  measurementId: "G-EP2Z0WYJX1",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function saveToCloud(data) {
-  await setDoc(doc(db, "expenses", "currentMonth"), data);
+function gatherCloudPayload() {
+  return {
+    salary1: document.getElementById("salary1").value,
+    salary2: document.getElementById("salary2").value,
+    emergency: document.getElementById("emergency").value,
+    actualSpending: document.getElementById("actualSpending").value,
+    ded1: Array.from(document.querySelectorAll(".ded1")).map(function (el) {
+      return el.value;
+    }),
+    ded2: Array.from(document.querySelectorAll(".ded2")).map(function (el) {
+      return el.value;
+    }),
+    expense: Array.from(document.querySelectorAll(".expense")).map(function (el) {
+      return el.value;
+    }),
+  };
 }
 
-async function loadFromCloud() {
-  const docRef = doc(db, "expenses", "currentMonth");
-  const docSnap = await getDoc(docRef);
+window.persistToCloud = async function () {
+  try {
+    await setDoc(doc(db, "expenses", "currentMonth"), gatherCloudPayload());
+  } catch (e) {
+    console.warn("Cloud save failed", e);
+  }
+};
 
-  if (docSnap.exists()) {
+async function loadFromCloud() {
+  try {
+    const docRef = doc(db, "expenses", "currentMonth");
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) return;
     const data = docSnap.data();
-    Object.keys(data).forEach(key => {
-      if (document.getElementById(key)) {
-        document.getElementById(key).value = data[key];
-      }
-    });
-    calculateAll();
+    if (data.salary1 != null) document.getElementById("salary1").value = data.salary1;
+    if (data.salary2 != null) document.getElementById("salary2").value = data.salary2;
+    if (data.emergency != null) document.getElementById("emergency").value = data.emergency;
+    if (data.actualSpending != null) document.getElementById("actualSpending").value = data.actualSpending;
+    const d1 = data.ded1;
+    const d2 = data.ded2;
+    const ex = data.expense;
+    if (Array.isArray(d1)) {
+      document.querySelectorAll(".ded1").forEach(function (el, i) {
+        if (d1[i] != null) el.value = d1[i];
+      });
+    }
+    if (Array.isArray(d2)) {
+      document.querySelectorAll(".ded2").forEach(function (el, i) {
+        if (d2[i] != null) el.value = d2[i];
+      });
+    }
+    if (Array.isArray(ex)) {
+      document.querySelectorAll(".expense").forEach(function (el, i) {
+        if (ex[i] != null) el.value = ex[i];
+      });
+    }
+    if (typeof window.calculate === "function") window.calculate();
+  } catch (e) {
+    console.warn("Cloud load failed", e);
   }
 }
 
-window.onload = loadFromCloud;
-
+window.addEventListener("load", loadFromCloud);
 </script>
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
+  navigator.serviceWorker.register("service-worker.js").catch(function () {});
 }
 </script>
 </body>
